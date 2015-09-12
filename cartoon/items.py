@@ -13,4 +13,4 @@ class CartoonItem(scrapy.Item):
     # name = scrapy.Field()
     image_urls = scrapy.Field()
     images = scrapy.Field()
-    order = scrapy.Field()
+    #order = scrapy.Field()
