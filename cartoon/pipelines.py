@@ -8,8 +8,11 @@ from scrapy.pipelines.images import ImagesPipeline
 
 class CartoonPipeline(ImagesPipeline):
     def file_path(self, request, response=None, info=None):
-        item = request.meta['item']
-        print '----------', item['image_urls'][0], '----------'
+        try:
+            item = request.meta['item']
+            print '----------', item['image_urls'][0], '----------'
+        except:
+            print '----------Something wrong----------'
         ## start of deprecation warning block (can be removed in the future)
         def _warn():
             from scrapy.exceptions import ScrapyDeprecationWarning
