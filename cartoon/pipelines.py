@@ -5,14 +5,13 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from scrapy.pipelines.images import ImagesPipeline
+from scrapy.http import Request
+import hashlib
 
 class CartoonPipeline(ImagesPipeline):
     def file_path(self, request, response=None, info=None):
-        try:
-            item = request.meta['item']
-            print '----------', item['image_urls'][0], '----------'
-        except:
-            print '----------Something wrong----------'
+        for sth in request.meta.keys():
+            print sth, '----', request.meta[sth]
         ## start of deprecation warning block (can be removed in the future)
         def _warn():
             from scrapy.exceptions import ScrapyDeprecationWarning
