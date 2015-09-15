@@ -14,8 +14,8 @@ class CartoonPipeline(ImagesPipeline):
 
     def file_path(self, request, response=None, info=None):
         try:
-            item = request.meta['image_name']
-            print '----------', item, '----------'
+            for key in request.meta:
+                print '---------', key, ':', request.meta.get(key, ''), '--------'
         except:
             print '----------Something wrong----------'
         ## start of deprecation warning block (can be removed in the future)
