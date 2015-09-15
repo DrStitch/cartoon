@@ -10,7 +10,7 @@ import hashlib
 
 class CartoonPipeline(ImagesPipeline):
     def get_media_requests(self, item, info):
-        return [Request(x, meta=dict(image_name=item['name'][0])) for x in item.get(self.IMAGES_URLS_FIELD, []), ]
+        return [Request(x, meta=dict(image_name=item['name'][0])) for x in item.get(self.IMAGES_URLS_FIELD, [])]
 
     def file_path(self, request, response=None, info=None):
         try:
