@@ -13,13 +13,11 @@ class CartoonPipeline(ImagesPipeline):
         return [Request(x, meta=dict(image_name=item['name'][0])) for x in item.get(self.IMAGES_URLS_FIELD, []), ]
 
     def file_path(self, request, response=None, info=None):
-        '''
         try:
             for key in request.meta:
                 print '---------', key, ':', request.meta.get(key, ''), '--------'
         except:
             print '----------Something wrong----------'
-        '''
         ## start of deprecation warning block (can be removed in the future)
         def _warn():
             from scrapy.exceptions import ScrapyDeprecationWarning
