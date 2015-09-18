@@ -2,10 +2,14 @@
 __author__ = 'stitch'
 from scrapy import signals
 from scrapy.exceptions import NotConfigured
+from contextlib import closing
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+import smtplib
+import email
 import tarfile
 import shutil
 import os
-from contextlib import closing
 
 class TarFolder(object):
     def __init__(self):
@@ -23,16 +27,50 @@ class TarFolder(object):
     def tar_folder(self, spider):
         with closing(tarfile.TarFile.gzopen(self.filename, 'w')) as out:
             out.add(self.folder)
-'''
+
+
 class SendEmail(object):
     def __init__(self):
-        self.frm = '467738357@qq.com'
-        self.to = '467738357@qq.com'
-'''
+        self.frm = 'xxx'
+        self.to = 'xxx'
+        self.filename = 'complete.tar.gz'
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        if not crawler.settings.getbool('MYEXT_ENABLED'):
+            raise NotConfigured
+        ext = cls()
+        crawler.signals.connect(ext.send_email, signal=signals.spider_closed)
+        return ext
+
+    def send_email(self, spider):
+        msg = MIMEMultipart()
+
+        ctype = 'application/octet-stream'
+        maintype, subtype = ctype.split('/', 1)
+
+        file_msg = MIMEBase(maintype, subtype)
+        data = open(self.filename, 'rb')
+        file_msg.set_payload(data.read())
+        data.close()
+        email.Encoders.encode_base64(file_msg)
+        file_msg.add_header('Content-Disposition', 'attachment', filename = 'cartoon.tar.gz')
+        msg.attach(file_msg)
+
+        try:
+            server = smtplib.SMTP()
+            server.connect('smtp.qq.com')
+            server.login(username, password)
+            server.sendmail(self.frm, self.to, msg.as_string())
+        except Exception,e:
+            print str(e)
+        finally:
+            server.quit()
+
 
 class ClearFile(object):
     def __init__(self):
-        self.folder = 'pic/full'
+        self.folder = 'pic/full/'
         self.filename = 'complete.tar.gz'
 
     @classmethod
@@ -44,5 +82,7 @@ class ClearFile(object):
         return ext
 
     def clear_file(self, spider):
-        shutil.rmtree(self.folder)
-        os.remove(self.filename)
+        if os.path.exists(self.folder):
+            shutil.rmtree(self.folder)
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
