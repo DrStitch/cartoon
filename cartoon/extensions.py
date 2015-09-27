@@ -10,6 +10,7 @@ import email
 import tarfile
 import shutil
 import os
+import logging
 
 class TarFolder(object):
     def __init__(self):
@@ -31,14 +32,17 @@ class TarFolder(object):
 
 class SendEmail(object):
     def __init__(self):
-        self.frm = 'xxx'
-        self.to = 'xxx'
         self.filename = 'complete.tar.gz'
 
     @classmethod
     def from_crawler(cls, crawler):
         if not crawler.settings.getbool('MYEXT_ENABLED'):
             raise NotConfigured
+        self.From = crawler.settings['MAIL_FROM']
+        self.Host = crawler.settings['MAIL_HOST']
+        self.Pass = crawler.settings['MAIL_PASS']
+        self.Port = crawler.settings['MAIL_PORT']
+        self.User = crawler.settings['MAIL_USER']
         ext = cls()
         crawler.signals.connect(ext.send_email, signal=signals.spider_closed)
         return ext
@@ -58,10 +62,12 @@ class SendEmail(object):
         msg.attach(file_msg)
 
         try:
-            server = smtplib.SMTP()
-            server.connect('smtp.qq.com')
-            server.login(username, password)
-            server.sendmail(self.frm, self.to, msg.as_string())
+            server = smtplib.SMTP(self.Host, self.Port)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(self.User, self.Pass)
+            server.sendmail(self.From, self.From, msg.as_string())
         except Exception,e:
             print str(e)
         finally:
